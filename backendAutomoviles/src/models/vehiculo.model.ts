@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Persona extends Entity {
+export class Vehiculo extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -13,46 +13,40 @@ export class Persona extends Entity {
     type: 'string',
     required: true,
   })
-  nombre: string;
+  marca: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  apellidos: string;
+  modelo: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  contrasena: string;
+  descripcion: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  rol: string;
+  kilometraje: string;
 
   @property({
-    type: 'string',
-    required: true,
+    type: 'array',
+    itemType: 'object',
   })
-  correo: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  telefono: string;
+  imagenes?: object[];
 
 
-  constructor(data?: Partial<Persona>) {
+  constructor(data?: Partial<Vehiculo>) {
     super(data);
   }
 }
 
-export interface PersonaRelations {
+export interface VehiculoRelations {
   // describe navigational properties here
 }
 
-export type PersonaWithRelations = Persona & PersonaRelations;
+export type VehiculoWithRelations = Vehiculo & VehiculoRelations;
