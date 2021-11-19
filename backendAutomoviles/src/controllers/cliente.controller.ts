@@ -81,21 +81,27 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    let clave =this.servicioAutenticacion.GenerarClave();
-    let claveCifrada=this.servicioAutenticacion.CifrarClave(clave);
-    cliente.contrasena=claveCifrada; 
-    let p =await this.clienteRepository.create(cliente);
+    let c = this.clienteRepository.find(where:{documento:cliente.documento});
+    if(c===null){
+      let clave =this.servicioAutenticacion.GenerarClave();
+      let claveCifrada=this.servicioAutenticacion.CifrarClave(clave);
+      cliente.contrasena=claveCifrada; 
+      let p =await this.clienteRepository.create(cliente);
 
-    //notificaciones
-    let destino=cliente.correo;
-    let asunto="registro en la plataforma";
-    let contenido=`hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo}y su contraseña es: ${clave}`;
+      //notificaciones
+      let destino=cliente.correo;
+      let asunto="registro en la plataforma";
+      let contenido=`hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo}y su contraseña es: ${clave}`;
 
-    fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
-    .then((data:any)=>{
-      console.log(data);
-    })
-    return p;
+      fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+      .then((data:any)=>{
+        console.log(data);
+      })
+      return p;
+    }else{
+      return "El cliente ya existe"
+    }
+    
   }
 
   @get('/clientes/count')
