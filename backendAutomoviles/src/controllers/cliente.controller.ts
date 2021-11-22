@@ -81,8 +81,7 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    let c = this.clienteRepository.find(where:{documento:cliente.documento});
-    if(c===null){
+    
       let clave =this.servicioAutenticacion.GenerarClave();
       let claveCifrada=this.servicioAutenticacion.CifrarClave(clave);
       cliente.contrasena=claveCifrada; 
@@ -98,9 +97,7 @@ export class ClienteController {
         console.log(data);
       })
       return p;
-    }else{
-      return "El cliente ya existe"
-    }
+    
     
   }
 
