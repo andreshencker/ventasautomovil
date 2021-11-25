@@ -2,6 +2,7 @@ import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository'
 import {EstadoContrato} from './estado-contrato.model';
 import {EstadoSolicitud} from './estado-solicitud.model';
 import {EstudioSolicitud} from './estudio-solicitud.model';
+import {Cliente} from './cliente.model';
 
 @model()
 export class SolicitudVehiculo extends Entity {
@@ -19,7 +20,7 @@ export class SolicitudVehiculo extends Entity {
   fechaSolicitud: string;
 
   @property({
-    type: 'object'   
+    type: 'object'
   })
   contrato: object;
 
@@ -31,6 +32,9 @@ export class SolicitudVehiculo extends Entity {
 
   @hasMany(() => EstudioSolicitud)
   estudioSolicituds: EstudioSolicitud[];
+
+  @belongsTo(() => Cliente)
+  clienteId: string;
 
   constructor(data?: Partial<SolicitudVehiculo>) {
     super(data);

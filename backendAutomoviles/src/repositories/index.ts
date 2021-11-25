@@ -11,3 +11,4 @@ export * from './solicitud-vehiculo.repository';
 export * from './tipo-transaccion.repository';
 export * from './tipo-vehiculo.repository';
 export * from './vehiculo.repository';
+export * from './marca.repository';

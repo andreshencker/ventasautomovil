@@ -12,3 +12,4 @@ export * from './solicitud-vehiculo.model';
 export * from './estado-contrato.model';
 export * from './estudio-solicitud.model';
 export * from './credenciales.model';
+export * from './marca.model';

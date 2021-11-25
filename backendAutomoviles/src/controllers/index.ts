@@ -31,3 +31,8 @@ export * from './solicitud-vehiculo.controller';
 export * from './cliente.controller';
 export * from './ciudad.controller';
 export * from './estudio-solicitud.controller';
+export * from './vehiculo-marca.controller';
+export * from './marca-vehiculo.controller';
+export * from './solicitud-vehiculo-cliente.controller';
+export * from './cliente-solicitud-vehiculo.controller';
+export * from './marca.controller';
