@@ -111,6 +111,8 @@ export class EmpleadoController {
     return this.empleadoRepository.findById(id, filter);
   }
 
+ 
+
   @patch('/empleados/{id}')
   @response(204, {
     description: 'Empleado PATCH success',
