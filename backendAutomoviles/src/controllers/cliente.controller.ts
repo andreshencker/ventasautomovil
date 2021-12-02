@@ -1,41 +1,34 @@
-import { service } from '@loopback/core';
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
-  HttpErrors,
+  del, get,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
-import { Llaves } from '../config/llaves';
+import {Llaves} from '../config/llaves';
 import {Cliente, Credenciales} from '../models';
 import {ClienteRepository} from '../repositories';
-import { AutenticacionService } from '../services';
+import {AutenticacionService} from '../services';
 
 
-const fetch= require('node-fetch');
+const fetch = require('node-fetch');
 
 export class ClienteController {
   constructor(
     @repository(ClienteRepository)
-    public clienteRepository : ClienteRepository,
+    public clienteRepository: ClienteRepository,
     @service(AutenticacionService)
-    public servicioAutenticacion:AutenticacionService
-  ) {}
+    public servicioAutenticacion: AutenticacionService
+  ) { }
 
-  @post('/identificarCliente',{
+  @post('/identificarCliente', {
     responses: {
       '200': {
         description: "identificación de usuarios"
@@ -59,7 +52,7 @@ export class ClienteController {
       }
     }
     else {
-      throw new HttpErrors[401]("datos invalidos");
+      throw new HttpErrors[401]("los datos suministrados no son invalidos");
     }
 
   }
@@ -81,24 +74,24 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    
-      let clave =this.servicioAutenticacion.GenerarClave();
-      let claveCifrada=this.servicioAutenticacion.CifrarClave(clave);
-      cliente.contrasena=claveCifrada; 
-      let p =await this.clienteRepository.create(cliente);
 
-      //notificaciones
-      let destino=cliente.correo;
-      let asunto="registro en la plataforma";
-      let contenido=`hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo}y su contraseña es: ${clave}`;
+    let clave = this.servicioAutenticacion.GenerarClave();
+    let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+    cliente.contrasena = claveCifrada;
+    let p = await this.clienteRepository.create(cliente);
 
-      fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
-      .then((data:any)=>{
+    //notificaciones
+    let destino = cliente.correo;
+    let asunto = "registro en la plataforma";
+    let contenido = `hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo}y su contraseña es: ${clave}`;
+
+    fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+      .then((data: any) => {
         console.log(data);
       })
-      return p;
-    
-    
+    return p;
+
+
   }
 
   @get('/clientes/count')

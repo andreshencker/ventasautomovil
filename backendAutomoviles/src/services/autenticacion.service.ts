@@ -1,8 +1,8 @@
-import {injectable, /* inject, */ BindingScope} from '@loopback/core';
-import { repository } from '@loopback/repository';
-import { Llaves } from '../config/llaves';
-import { Cliente } from '../models';
-import { ClienteRepository } from '../repositories';
+import { /* inject, */ BindingScope, injectable} from '@loopback/core';
+import {repository} from '@loopback/repository';
+import {Llaves} from '../config/llaves';
+import {Cliente} from '../models';
+import {ClienteRepository} from '../repositories';
 
 const jwt = require("jsonwebtoken");
 const generador = require("password-generator");
@@ -13,7 +13,7 @@ export class AutenticacionService {
   constructor(
     @repository(ClienteRepository)
     public clienteRepository: ClienteRepository
-  ) {}
+  ) { }
 
   /*
    * Add service methods here
@@ -70,6 +70,8 @@ export class AutenticacionService {
       return false;
     }
   }
+
+  validar() { }
 }
 
 
