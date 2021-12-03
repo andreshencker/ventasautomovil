@@ -4,23 +4,27 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where
+  Where,
 } from '@loopback/repository';
 import {
-  del, get,
-  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
-  response
+  post,
+  param,
+  get,
+  getModelSchemaRef,
+  patch,
+  put,
+  del,
+  requestBody,
+  response,
 } from '@loopback/rest';
-import {Empleado, EmpleadoRelations} from '../models';
+import {Empleado} from '../models';
 import {EmpleadoRepository} from '../repositories';
-import {EmpleadoserviceService} from '../services';
 
 export class EmpleadoController {
   constructor(
     @repository(EmpleadoRepository)
-    public empleadoRepository: EmpleadoRepository,
-    public empleadoServicio: EmpleadoserviceService
-  ) { }
+    public empleadoRepository : EmpleadoRepository,
+  ) {}
 
   @post('/empleados')
   @response(200, {
@@ -106,35 +110,6 @@ export class EmpleadoController {
   ): Promise<Empleado> {
     return this.empleadoRepository.findById(id, filter);
   }
-
-/*
-
-  @get('/empleado-documento/{documento}', {
-    responses: {
-      '200': {
-        description: 'Array of CargoEmpleado has many Empleado',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(Empleado),
-          },
-        },
-      },
-    },
-  })
-  async findo(
-    @param.path.string('documento') documento: string,
-    @param.query.object('filter') filter?: Filter<Empleado>,
-  ): Promise<null> {
-    let empleadito=this.empleadoServicio.EmpleadoDocumento(documento);
-    if(empleadito==false){
-      throw new HttpErrors[401]("el documento no existe");
-    }
-    else{
-      return empleadito;
-    }
-  }
-  */
-
 
   @patch('/empleados/{id}')
   @response(204, {

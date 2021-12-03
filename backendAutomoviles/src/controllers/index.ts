@@ -36,3 +36,4 @@ export * from './marca-vehiculo.controller';
 export * from './solicitud-vehiculo-cliente.controller';
 export * from './cliente-solicitud-vehiculo.controller';
 export * from './marca.controller';
+export * from './empleado.controller';

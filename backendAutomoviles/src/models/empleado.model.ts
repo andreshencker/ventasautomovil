@@ -47,7 +47,7 @@ export class Empleado extends Entity {
   })
   documento: string;
 
-  @belongsTo(() => CargoEmpleado)
+  @belongsTo(() => CargoEmpleado,)
   cargoEmpleadoId: string;
 
   @hasMany(() => DetalleVehiculo)
