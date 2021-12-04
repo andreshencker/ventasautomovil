@@ -3,6 +3,7 @@ import {TipoVehiculo} from './tipo-vehiculo.model';
 import {TipoTransaccion} from './tipo-transaccion.model';
 import {DetalleVehiculo} from './detalle-vehiculo.model';
 import {Marca} from './marca.model';
+import {FotoVehiculo} from './foto-vehiculo.model';
 
 @model()
 export class Vehiculo extends Entity {
@@ -31,12 +32,6 @@ export class Vehiculo extends Entity {
   })
   descripcion: string;
 
-  @property({
-    type: 'array',
-    itemType: 'object',
-  })
-  imagenes?: object[];
-
   @belongsTo(() => TipoVehiculo)
   tipoVehiculoId: string;
 
@@ -48,6 +43,9 @@ export class Vehiculo extends Entity {
 
   @belongsTo(() => Marca)
   marcaId: string;
+
+  @hasMany(() => FotoVehiculo)
+  fotoVehiculos: FotoVehiculo[];
 
   constructor(data?: Partial<Vehiculo>) {
     super(data);
