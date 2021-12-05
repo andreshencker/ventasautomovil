@@ -40,3 +40,6 @@ export * from './empleado.controller';
 export * from './foto-vehiculo-vehiculo.controller';
 export * from './vehiculo-foto-vehiculo.controller';
 export * from './foto.controller';
+export * from './vehiculo-catalogo-vehiculo.controller';
+export * from './catalogo-vehiculo-vehiculo.controller';
+export * from './catalogo-vehiculo.controller';
