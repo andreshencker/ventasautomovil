@@ -38,6 +38,7 @@ export class EmpleadoController {
           schema: getModelSchemaRef(Empleado, {
             title: 'NewEmpleado',
             exclude: ['id'],
+            includeRelations: true
           }),
         },
       },

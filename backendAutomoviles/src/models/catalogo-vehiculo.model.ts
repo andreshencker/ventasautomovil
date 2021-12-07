@@ -14,7 +14,7 @@ export class CatalogoVehiculo extends Entity {
     type: 'string',
     required: true,
   })
-  Catalogo: string;
+  nombreVehiculo: string;
 
   @hasMany(() => Vehiculo)
   vehiculos: Vehiculo[];

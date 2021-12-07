@@ -5,18 +5,24 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where
+  Where,
 } from '@loopback/repository';
 import {
-  del, get,
-  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
-  response
+  del,
+  get,
+  getModelSchemaRef,
+  HttpErrors,
+  param,
+  patch,
+  post,
+  put,
+  requestBody,
+  response,
 } from '@loopback/rest';
 import {Llaves} from '../config/llaves';
 import {Cliente, Credenciales} from '../models';
 import {ClienteRepository} from '../repositories';
 import {AutenticacionService} from '../services';
-
 
 const fetch = require('node-fetch');
 
@@ -25,36 +31,34 @@ export class ClienteController {
     @repository(ClienteRepository)
     public clienteRepository: ClienteRepository,
     @service(AutenticacionService)
-    public servicioAutenticacion: AutenticacionService
-  ) { }
+    public servicioAutenticacion: AutenticacionService,
+  ) {}
 
   @post('/identificarCliente', {
     responses: {
       '200': {
-        description: "identificación de usuarios"
-      }
-    }
-
+        description: 'identificación de usuarios',
+      },
+    },
   })
-  async identificarCliente(
-    @requestBody() credenciales: Credenciales) {
-
-    let p = await this.servicioAutenticacion.IdentificarCliente(credenciales.usuario, credenciales.clave);
+  async identificarCliente(@requestBody() credenciales: Credenciales) {
+    let p = await this.servicioAutenticacion.IdentificarCliente(
+      credenciales.usuario,
+      credenciales.clave,
+    );
     if (p) {
       let token = this.servicioAutenticacion.GenerarTokenJWT(p);
       return {
         datos: {
           nombre: p.nombres,
           correo: p.correo,
-          id: p.id
+          id: p.id,
         },
-        tk: token
-      }
+        tk: token,
+      };
+    } else {
+      throw new HttpErrors[401]('los datos suministrados no son invalidos');
     }
-    else {
-      throw new HttpErrors[401]("los datos suministrados no son invalidos");
-    }
-
   }
   @post('/clientes')
   @response(200, {
@@ -74,7 +78,6 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-
     let clave = this.servicioAutenticacion.GenerarClave();
     let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
     cliente.contrasena = claveCifrada;
@@ -82,16 +85,15 @@ export class ClienteController {
 
     //notificaciones
     let destino = cliente.correo;
-    let asunto = "registro en la plataforma";
-    let contenido = `hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo}y su contraseña es: ${clave}`;
+    let asunto = 'registro en la plataforma';
+    let contenido = `hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo} y su contraseña es: ${clave}`;
 
-    fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
-      .then((data: any) => {
-        console.log(data);
-      })
+    fetch(
+      `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+    ).then((data: any) => {
+      console.log(data);
+    });
     return p;
-
-
   }
 
   @get('/clientes/count')
@@ -99,9 +101,7 @@ export class ClienteController {
     description: 'Cliente model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Cliente) where?: Where<Cliente>,
-  ): Promise<Count> {
+  async count(@param.where(Cliente) where?: Where<Cliente>): Promise<Count> {
     return this.clienteRepository.count(where);
   }
 
@@ -153,7 +153,8 @@ export class ClienteController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Cliente, {exclude: 'where'}) filter?: FilterExcludingWhere<Cliente>
+    @param.filter(Cliente, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Cliente>,
   ): Promise<Cliente> {
     return this.clienteRepository.findById(id, filter);
   }

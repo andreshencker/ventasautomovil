@@ -19,7 +19,13 @@ export class Vehiculo extends Entity {
     type: 'string',
     required: true,
   })
-  nombre: string;
+  color: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  kilometraje: string;
 
   @property({
     type: 'string',
@@ -48,7 +54,7 @@ export class Vehiculo extends Entity {
   @hasMany(() => FotoVehiculo)
   fotoVehiculos: FotoVehiculo[];
 
-  @belongsTo(() => CatalogoVehiculo)
+  @belongsTo(() => CatalogoVehiculo )
   catalogoVehiculoId: string;
 
   constructor(data?: Partial<Vehiculo>) {
