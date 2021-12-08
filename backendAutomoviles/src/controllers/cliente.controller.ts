@@ -32,7 +32,7 @@ export class ClienteController {
     public clienteRepository: ClienteRepository,
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService,
-  ) {}
+  ) { }
 
   @post('/identificarCliente', {
     responses: {
@@ -50,7 +50,7 @@ export class ClienteController {
       let token = this.servicioAutenticacion.GenerarTokenJWT(p);
       return {
         datos: {
-          nombre: p.nombres,
+          nombre: p.nombres + " " + p.apellidos,
           correo: p.correo,
           id: p.id,
         },
@@ -78,22 +78,28 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    let clave = this.servicioAutenticacion.GenerarClave();
-    let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
-    cliente.contrasena = claveCifrada;
-    let p = await this.clienteRepository.create(cliente);
+    let existe = await this.servicioAutenticacion.clienteExiste(cliente.documento, cliente.correo);
+    if (existe == null) {
+      let clave = this.servicioAutenticacion.GenerarClave();
+      let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+      cliente.contrasena = claveCifrada;
+      let p = await this.clienteRepository.create(cliente);
 
-    //notificaciones
-    let destino = cliente.correo;
-    let asunto = 'registro en la plataforma';
-    let contenido = `hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo} y su contraseña es: ${clave}`;
+      //notificaciones
+      let destino = cliente.correo;
+      let asunto = 'registro en la plataforma';
+      let contenido = `hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo} y su contraseña es: ${clave}`;
 
-    fetch(
-      `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
-    ).then((data: any) => {
-      console.log(data);
-    });
-    return p;
+      fetch(
+        `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+      ).then((data: any) => {
+        console.log(data);
+      });
+      return p;
+    }else{
+      throw new HttpErrors[401]('el correo o el documento ya existe');
+    }
+
   }
 
   @get('/clientes/count')

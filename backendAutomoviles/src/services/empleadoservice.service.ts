@@ -10,19 +10,9 @@ export class EmpleadoserviceService {
   /*
    * Add service methods here
    */
-  EmpleadoDocumento(documento: string) {
-    try {
-      let p = this.empleadoRepository.findOne({
-        where: {documento: documento}
-      });
-      if (p) {
-        return p;
-      } else {
-        return false;
-      }
-    } catch {
-      return false;
-    }
+  empleadoExiste(documento:string,correo:string){
+    let p = this.empleadoRepository.findOne({where: {correo: correo, documento: documento}});
+    return p;
   }
 }
 

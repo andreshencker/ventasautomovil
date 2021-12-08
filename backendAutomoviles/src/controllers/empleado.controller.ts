@@ -1,3 +1,5 @@
+import { CargoEmpleado } from './../models/cargo-empleado.model';
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -16,16 +18,51 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
-import {Empleado} from '../models';
+import {Llaves} from '../config/llaves';
+import {Empleado,Credenciales} from '../models';
 import {EmpleadoRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+
+const fetch = require('node-fetch');
 
 export class EmpleadoController {
   constructor(
     @repository(EmpleadoRepository)
     public empleadoRepository : EmpleadoRepository,
+    @service(AutenticacionService)
+    public servicioAutenticacion: AutenticacionService,
   ) {}
 
+  @post('/identificarEmpleado', {
+    responses: {
+      '200': {
+        description: 'identificación de usuarios',
+      },
+    },
+  })
+  async identificarCliente(@requestBody() credenciales: Credenciales) {
+    let p = await this.servicioAutenticacion.IdentificarEmpleado(
+      credenciales.usuario,
+      credenciales.clave,
+    );
+    if (p) {
+      let token = this.servicioAutenticacion.GenerarTokenJWTEmpleado(p);
+      //let c = this.servicioAutenticacion.obtenerCargoEmpleado(p.cargoEmpleadoId);
+      return {
+        datos: {
+          nombre: p.nombres,
+          correo: p.correo,
+          cargo:p.cargoEmpleadoId,
+          id: p.id,
+        },
+        tk: token,
+      };
+    } else {
+      throw new HttpErrors[401]('los datos suministrados no son invalidos');
+    }
+  }
   @post('/empleados')
   @response(200, {
     description: 'Empleado model instance',
@@ -45,7 +82,30 @@ export class EmpleadoController {
     })
     empleado: Omit<Empleado, 'id'>,
   ): Promise<Empleado> {
-    return this.empleadoRepository.create(empleado);
+
+    let existe = await this.servicioAutenticacion.empleadoExiste(empleado.documento, empleado.correo);
+    if (existe == null) {
+      let clave = this.servicioAutenticacion.GenerarClave();
+      let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+      empleado.contrasena = claveCifrada;
+      let p = await this.empleadoRepository.create(empleado);
+
+      //notificaciones
+      let destino = empleado.correo;
+      let asunto = 'registro en la plataforma';
+      let contenido = `hola ${empleado.nombres},su nombre de usuario es: ${empleado.correo} y su contraseña es: ${clave}`;
+
+      fetch(
+        `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+      ).then((data: any) => {
+        console.log(data);
+      });
+      return p;
+    }else{
+      throw new HttpErrors[401]('el correo o el documento ya existe');
+    }
+
+
   }
 
   @get('/empleados/count')

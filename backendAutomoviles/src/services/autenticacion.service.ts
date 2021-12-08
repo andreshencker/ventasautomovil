@@ -1,7 +1,10 @@
+import { CargoEmpleadoRepository } from './../repositories/cargo-empleado.repository';
+import { CargoEmpleado } from './../models/cargo-empleado.model';
+import {EmpleadoRepository} from './../repositories/empleado.repository';
 import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {Llaves} from '../config/llaves';
-import {Cliente} from '../models';
+import {Cliente, Empleado} from '../models';
 import {ClienteRepository} from '../repositories';
 
 const jwt = require("jsonwebtoken");
@@ -12,7 +15,11 @@ const cryptoJS = require("crypto-js");
 export class AutenticacionService {
   constructor(
     @repository(ClienteRepository)
-    public clienteRepository: ClienteRepository
+    public clienteRepository: ClienteRepository,
+    @repository(EmpleadoRepository)
+    public empleadoRepository: EmpleadoRepository,
+    @repository(CargoEmpleadoRepository)
+    public cargoEmpleadoRepository: CargoEmpleadoRepository
   ) { }
 
   /*
@@ -46,6 +53,22 @@ export class AutenticacionService {
       return false;
     }
   }
+  IdentificarEmpleado(usuario: string, clave: string) {
+
+    try {
+      let p = this.empleadoRepository.findOne({where: {correo: usuario, contrasena: clave}});
+      if (p) {
+        return p;
+      }
+      else {
+        false;
+      }
+
+    }
+    catch {
+      return false;
+    }
+  }
 
   GenerarTokenJWT(cliente: Cliente) {
     let token = jwt.sign({
@@ -53,6 +76,20 @@ export class AutenticacionService {
         id: cliente.id,
         correo: cliente.correo,
         nombres: cliente.nombres + "" + cliente.apellidos
+      }
+    },
+      Llaves.claveJWT);
+
+    return token;
+  }
+
+  GenerarTokenJWTEmpleado(empleado: Empleado) {
+    let token = jwt.sign({
+      data: {
+        id: empleado.id,
+        correo: empleado.correo,
+        nombres: empleado.nombres + "" + empleado.apellidos,
+        cargo:empleado.cargoEmpleadoId
       }
     },
       Llaves.claveJWT);
@@ -71,6 +108,49 @@ export class AutenticacionService {
     }
   }
 
+  clienteExiste(documento: string, correo: string) {
+    try{
+      let p = this.clienteRepository.findOne({where: {correo: correo, documento: documento}});
+      if (p) {
+        return p;
+      }
+      else {
+        return null;
+      }
+    }catch {
+      return null;
+    }
+
+  }
+
+  empleadoExiste(documento: string, correo: string) {
+    try {
+      let p = this.empleadoRepository.findOne({where: {correo: correo, documento: documento}});
+      if (p) {
+        return p;
+      }
+      else {
+        return null;
+      }
+    }catch {
+      return null;
+    }
+  }
+
+  obtenerCargoEmpleado(id:string){
+    try{
+      let p =this.cargoEmpleadoRepository.findOne({where: {id: id}});
+      if (p) {
+        return p;
+      }
+      else {
+        return null;
+      }
+    }catch{
+      return null;
+    }
+
+  }
   validar() { }
 }
 

@@ -54,7 +54,7 @@ export class Vehiculo extends Entity {
   @hasMany(() => FotoVehiculo)
   fotoVehiculos: FotoVehiculo[];
 
-  @belongsTo(() => CatalogoVehiculo )
+  @belongsTo(() => CatalogoVehiculo)
   catalogoVehiculoId: string;
 
   constructor(data?: Partial<Vehiculo>) {
