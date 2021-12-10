@@ -1,4 +1,4 @@
-import { CargoEmpleado } from './../models/cargo-empleado.model';
+import {CargoEmpleado} from './../models/cargo-empleado.model';
 import {service} from '@loopback/core';
 import {
   Count,
@@ -21,7 +21,7 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import {Llaves} from '../config/llaves';
-import {Empleado,Credenciales} from '../models';
+import {Empleado, Credenciales} from '../models';
 import {EmpleadoRepository} from '../repositories';
 import {AutenticacionService} from '../services';
 
@@ -30,7 +30,7 @@ const fetch = require('node-fetch');
 export class EmpleadoController {
   constructor(
     @repository(EmpleadoRepository)
-    public empleadoRepository : EmpleadoRepository,
+    public empleadoRepository: EmpleadoRepository,
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService,
   ) {}
@@ -42,7 +42,7 @@ export class EmpleadoController {
       },
     },
   })
-  async identificarCliente(@requestBody() credenciales: Credenciales) {
+  async identificarEmpleado(@requestBody() credenciales: Credenciales) {
     let p = await this.servicioAutenticacion.IdentificarEmpleado(
       credenciales.usuario,
       credenciales.clave,
@@ -52,9 +52,9 @@ export class EmpleadoController {
       //let c = this.servicioAutenticacion.obtenerCargoEmpleado(p.cargoEmpleadoId);
       return {
         datos: {
-          nombre: p.nombres,
+          nombre: p.nombres + ' ' + p.apellidos,
           correo: p.correo,
-          cargo:p.cargoEmpleadoId,
+          cargo: p.cargoEmpleadoId,
           id: p.id,
         },
         tk: token,
@@ -63,6 +63,34 @@ export class EmpleadoController {
       throw new HttpErrors[401]('los datos suministrados no son invalidos');
     }
   }
+
+  @put('/empleados/recuperarcontrasena/{id}')
+  @response(204, {
+    description: 'Empleado PUT success',
+  })
+  async replaceContrasenaEmpleado(
+    @param.path.string('id') id: string,
+    @requestBody() empleado: Empleado,
+  ): Promise<void> {
+    let clave = this.servicioAutenticacion.GenerarClave();
+    let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+    empleado.contrasena = claveCifrada;
+    await this.empleadoRepository.replaceById(id, empleado);
+
+    //notificaciones
+    let destino = empleado.correo;
+    let asunto = 'recuperación de clave de acceso';
+    const contenido = `hola ${empleado.nombres},su nombre de usuario como empleado es: ${empleado.correo} y su contraseña es: ${clave}`;
+
+    fetch(
+      `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+    ).then((data: any) => {
+      console.log(data);
+    });
+
+
+  }
+
   @post('/empleados')
   @response(200, {
     description: 'Empleado model instance',
@@ -75,15 +103,17 @@ export class EmpleadoController {
           schema: getModelSchemaRef(Empleado, {
             title: 'NewEmpleado',
             exclude: ['id'],
-            includeRelations: true
+            includeRelations: true,
           }),
         },
       },
     })
     empleado: Omit<Empleado, 'id'>,
   ): Promise<Empleado> {
-
-    let existe = await this.servicioAutenticacion.empleadoExiste(empleado.documento, empleado.correo);
+    let existe = await this.servicioAutenticacion.empleadoExiste(
+      empleado.documento,
+      empleado.correo,
+    );
     if (existe == null) {
       let clave = this.servicioAutenticacion.GenerarClave();
       let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
@@ -101,11 +131,9 @@ export class EmpleadoController {
         console.log(data);
       });
       return p;
-    }else{
+    } else {
       throw new HttpErrors[401]('el correo o el documento ya existe');
     }
-
-
   }
 
   @get('/empleados/count')
@@ -113,9 +141,7 @@ export class EmpleadoController {
     description: 'Empleado model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Empleado) where?: Where<Empleado>,
-  ): Promise<Count> {
+  async count(@param.where(Empleado) where?: Where<Empleado>): Promise<Count> {
     return this.empleadoRepository.count(where);
   }
 
@@ -167,7 +193,8 @@ export class EmpleadoController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Empleado, {exclude: 'where'}) filter?: FilterExcludingWhere<Empleado>
+    @param.filter(Empleado, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Empleado>,
   ): Promise<Empleado> {
     return this.empleadoRepository.findById(id, filter);
   }

@@ -1,3 +1,5 @@
+import { Cliente } from './../models/cliente.model';
+import {Contacto} from './../models/contacto.model';
 import {service} from '@loopback/core';
 import {
   Count,
@@ -20,7 +22,7 @@ import {
   response,
 } from '@loopback/rest';
 import {Llaves} from '../config/llaves';
-import {Cliente, Credenciales} from '../models';
+import { Credenciales} from '../models';
 import {ClienteRepository} from '../repositories';
 import {AutenticacionService} from '../services';
 
@@ -32,7 +34,7 @@ export class ClienteController {
     public clienteRepository: ClienteRepository,
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService,
-  ) { }
+  ) {}
 
   @post('/identificarCliente', {
     responses: {
@@ -50,7 +52,7 @@ export class ClienteController {
       let token = this.servicioAutenticacion.GenerarTokenJWT(p);
       return {
         datos: {
-          nombre: p.nombres + " " + p.apellidos,
+          nombre: p.nombres + ' ' + p.apellidos,
           correo: p.correo,
           id: p.id,
         },
@@ -60,6 +62,39 @@ export class ClienteController {
       throw new HttpErrors[401]('los datos suministrados no son invalidos');
     }
   }
+
+
+
+
+
+
+  @put('/clientes/recuperarcontrasena/{id}')
+  @response(204, {
+    description: 'Cliente PUT success',
+  })
+  async replaceContrasena(
+    @param.path.string('id') id: string,
+    @requestBody() cliente: Cliente,
+  ): Promise<void> {
+    let clave = this.servicioAutenticacion.GenerarClave();
+    let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+    cliente.contrasena = claveCifrada;
+
+
+    //notificaciones
+    let destino = cliente.correo;
+    let asunto = 'recuperación de clave de acceso';
+    const contenido = `hola ${cliente.nombres},su nombre de usuario es: ${cliente.correo} y su contraseña es: ${clave}`;
+
+    fetch(
+      `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+    ).then((data: any) => {
+      console.log(data);
+    });
+
+    await this.clienteRepository.replaceById(id, cliente);
+  }
+
   @post('/clientes')
   @response(200, {
     description: 'Cliente model instance',
@@ -78,7 +113,10 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    let existe = await this.servicioAutenticacion.clienteExiste(cliente.documento, cliente.correo);
+    let existe = await this.servicioAutenticacion.clienteExiste(
+      cliente.documento,
+      cliente.correo,
+    );
     if (existe == null) {
       let clave = this.servicioAutenticacion.GenerarClave();
       let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
@@ -96,10 +134,35 @@ export class ClienteController {
         console.log(data);
       });
       return p;
-    }else{
+    } else {
       throw new HttpErrors[401]('el correo o el documento ya existe');
     }
+  }
 
+  @post('/clientes/contactenos')
+  @response(200, {
+    description: 'Cliente model instance',
+    content: {'application/json': {schema: getModelSchemaRef(Cliente)}},
+  })
+  async contactenos(
+    @requestBody({
+      content: {
+        'application/json': {},
+      },
+    })
+    contactar: Contacto,
+  ): Promise<Contacto> {
+    //notificaciones
+    let destino = 'andreshencker@gmail.com';
+    let asunto = `informacion sobre ${contactar.tipoTransaccion}`;
+    let contenido = ` ${contactar.nombres} ${contactar.apellidos}, requiere información sobre: ${contactar.mensaje} datos de contacto celular:${contactar.mensaje} correo:${contactar.correo}`;
+
+    fetch(
+      `${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+    ).then((data: any) => {
+      console.log(data);
+    });
+    return contactar;
   }
 
   @get('/clientes/count')

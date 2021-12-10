@@ -112,6 +112,7 @@ export class AutenticacionService {
     try{
       let p = this.clienteRepository.findOne({where: {correo: correo, documento: documento}});
       if (p) {
+
         return p;
       }
       else {
@@ -137,21 +138,20 @@ export class AutenticacionService {
     }
   }
 
-  obtenerCargoEmpleado(id:string){
-    try{
-      let p =this.cargoEmpleadoRepository.findOne({where: {id: id}});
+  obtenerClienteDocumento(correo:string){
+    try {
+      let p = this.clienteRepository.findOne({where: {correo: correo}});
       if (p) {
         return p;
       }
       else {
         return null;
       }
-    }catch{
+    }catch {
       return null;
     }
 
-  }
-  validar() { }
 }
 
 
+}

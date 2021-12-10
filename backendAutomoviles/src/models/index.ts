@@ -15,3 +15,4 @@ export * from './credenciales.model';
 export * from './marca.model';
 export * from './foto-vehiculo.model';
 export * from './catalogo-vehiculo.model';
+export * from './contacto.model';
