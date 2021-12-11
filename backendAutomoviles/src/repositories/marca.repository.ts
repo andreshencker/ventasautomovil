@@ -1,8 +1,8 @@
 import {inject, Getter} from '@loopback/core';
 import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Marca, MarcaRelations, Vehiculo} from '../models';
-import {VehiculoRepository} from './vehiculo.repository';
+import {Marca, MarcaRelations, MarcaTipoVehiculo} from '../models';
+import {MarcaTipoVehiculoRepository} from './marca-tipo-vehiculo.repository';
 
 export class MarcaRepository extends DefaultCrudRepository<
   Marca,
@@ -10,13 +10,14 @@ export class MarcaRepository extends DefaultCrudRepository<
   MarcaRelations
 > {
 
-  public readonly vehiculos: HasManyRepositoryFactory<Vehiculo, typeof Marca.prototype.id>;
+  public readonly marcaTipoVehiculos: HasManyRepositoryFactory<MarcaTipoVehiculo, typeof Marca.prototype.id>;
 
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('VehiculoRepository') protected vehiculoRepositoryGetter: Getter<VehiculoRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('MarcaTipoVehiculoRepository') protected marcaTipoVehiculoRepositoryGetter: Getter<MarcaTipoVehiculoRepository>,
   ) {
     super(Marca, dataSource);
-    this.vehiculos = this.createHasManyRepositoryFactoryFor('vehiculos', vehiculoRepositoryGetter,);
-    this.registerInclusionResolver('vehiculos', this.vehiculos.inclusionResolver);
+    this.marcaTipoVehiculos = this.createHasManyRepositoryFactoryFor('marcaTipoVehiculos', marcaTipoVehiculoRepositoryGetter,);
+    this.registerInclusionResolver('marcaTipoVehiculos', this.marcaTipoVehiculos.inclusionResolver);
+
   }
 }

@@ -14,4 +14,5 @@ export * from './vehiculo.repository';
 export * from './marca.repository';
 export * from './foto-vehiculo.repository';
 
-export * from './catalogo-vehiculo.repository';
+
+export * from './marca-tipo-vehiculo.repository';

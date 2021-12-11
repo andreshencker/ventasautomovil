@@ -1,8 +1,8 @@
 import {inject, Getter} from '@loopback/core';
 import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Ciudad, CiudadRelations, DetalleVehiculo} from '../models';
-import {DetalleVehiculoRepository} from './detalle-vehiculo.repository';
+import {Ciudad, CiudadRelations, Empleado} from '../models';
+import {EmpleadoRepository} from './empleado.repository';
 
 export class CiudadRepository extends DefaultCrudRepository<
   Ciudad,
@@ -10,13 +10,14 @@ export class CiudadRepository extends DefaultCrudRepository<
   CiudadRelations
 > {
 
-  public readonly detalleVehiculos: HasManyRepositoryFactory<DetalleVehiculo, typeof Ciudad.prototype.id>;
+  public readonly empleados: HasManyRepositoryFactory<Empleado, typeof Ciudad.prototype.id>;
 
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('DetalleVehiculoRepository') protected detalleVehiculoRepositoryGetter: Getter<DetalleVehiculoRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('EmpleadoRepository') protected empleadoRepositoryGetter: Getter<EmpleadoRepository>,
   ) {
     super(Ciudad, dataSource);
-    this.detalleVehiculos = this.createHasManyRepositoryFactoryFor('detalleVehiculos', detalleVehiculoRepositoryGetter,);
-    this.registerInclusionResolver('detalleVehiculos', this.detalleVehiculos.inclusionResolver);
+    this.empleados = this.createHasManyRepositoryFactoryFor('empleados', empleadoRepositoryGetter,);
+    this.registerInclusionResolver('empleados', this.empleados.inclusionResolver);
+
   }
 }
