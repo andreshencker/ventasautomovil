@@ -4,8 +4,10 @@ import {EmpleadoRepository} from '../repositories';
 
 @injectable({scope: BindingScope.TRANSIENT})
 export class EmpleadoserviceService {
-  constructor(@repository(EmpleadoRepository)
-  public empleadoRepository: EmpleadoRepository) { }
+  constructor(
+    @repository(EmpleadoRepository)
+  public empleadoRepository: EmpleadoRepository
+  ) { }
 
   /*
    * Add service methods here

@@ -17,3 +17,4 @@ export * from './foto-vehiculo.model';
 export * from './contacto.model';
 
 export * from './marca-tipo-vehiculo.model';
+export * from './catalogo-vehiculo.model';

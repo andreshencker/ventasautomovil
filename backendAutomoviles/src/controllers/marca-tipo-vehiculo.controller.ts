@@ -1,3 +1,4 @@
+import { VehiculosService } from './../services/vehiculos.service';
 import {
   Count,
   CountSchema,
@@ -16,14 +17,18 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {MarcaTipoVehiculo} from '../models';
 import {MarcaTipoVehiculoRepository} from '../repositories';
+import {service} from '@loopback/core';
 
 export class MarcaTipoVehiculoController {
   constructor(
     @repository(MarcaTipoVehiculoRepository)
     public marcaTipoVehiculoRepository : MarcaTipoVehiculoRepository,
+    @service(VehiculosService)
+    public servicioVehiculo: VehiculosService,
   ) {}
 
   @post('/marca-tipo-vehiculos')
@@ -45,6 +50,15 @@ export class MarcaTipoVehiculoController {
     marcaTipoVehiculo: Omit<MarcaTipoVehiculo, 'id'>,
   ): Promise<MarcaTipoVehiculo> {
     return this.marcaTipoVehiculoRepository.create(marcaTipoVehiculo);
+    /*
+    let p= await this.servicioVehiculo.existeTipoVehiculoMarca(marcaTipoVehiculo.tipoVehiculoId);
+    if(p==null){
+      return this.marcaTipoVehiculoRepository.create(marcaTipoVehiculo);
+
+    }else{
+      throw new HttpErrors[401]('El tipo de vehiculo ya existe');
+    }*/
+
   }
 
   @get('/marca-tipo-vehiculos/count')

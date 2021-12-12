@@ -11,17 +11,7 @@ export class DetalleVehiculo extends Entity {
   })
   id?: string;
 
-  @property({
-    type: 'string',
-    required: true,
-  })
-  fecha: string;
 
-  @property({
-    type: 'number',
-    required: true,
-  })
-  precio: number;
 
   @property({
     type: 'number',
@@ -34,20 +24,6 @@ export class DetalleVehiculo extends Entity {
     required: true,
   })
   salida: number;
-
-  @property({
-    type: 'number',
-    required: true,
-  })
-  porComision: number;
-
-  @property({
-    type: 'boolean',
-    required: true,
-  })
-  estadoVehiculo: boolean;
-
-
 
   @belongsTo(() => Vehiculo)
   vehiculoId: string;

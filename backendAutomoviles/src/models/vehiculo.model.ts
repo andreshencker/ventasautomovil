@@ -2,7 +2,8 @@ import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository'
 import {TipoTransaccion} from './tipo-transaccion.model';
 import {DetalleVehiculo} from './detalle-vehiculo.model';
 import {FotoVehiculo} from './foto-vehiculo.model';
-
+import {Ciudad} from './ciudad.model';
+import {CatalogoVehiculo} from './catalogo-vehiculo.model';
 
 @model()
 export class Vehiculo extends Entity {
@@ -37,6 +38,21 @@ export class Vehiculo extends Entity {
   })
   descripcion: string;
 
+ 
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  precio: number;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  porComision: number;
+
+
 
 
   @belongsTo(() => TipoTransaccion)
@@ -46,11 +62,14 @@ export class Vehiculo extends Entity {
   detalleVehiculos: DetalleVehiculo[];
 
 
-
   @hasMany(() => FotoVehiculo)
   fotoVehiculos: FotoVehiculo[];
 
+  @belongsTo(() => Ciudad)
+  ciudadId: string;
 
+  @belongsTo(() => CatalogoVehiculo)
+  catalogoVehiculoId: string;
 
   constructor(data?: Partial<Vehiculo>) {
     super(data);
